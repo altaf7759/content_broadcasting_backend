@@ -4,7 +4,7 @@ CREATE TABLE users (
   email TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
   role TEXT CHECK (role IN ('teacher', 'principal')) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE content (
@@ -19,16 +19,16 @@ CREATE TABLE content (
   status TEXT CHECK (status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
   rejection_reason TEXT,
   approved_by INT REFERENCES users(id),
-  approved_at TIMESTAMP,
-  start_time TIMESTAMP,
-  end_time TIMESTAMP,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  approved_at TIMESTAMPTZ,
+  start_time TIMESTAMPTZ,
+  end_time TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE content_slots (
   id SERIAL PRIMARY KEY,
   subject TEXT CHECK (subject IN ('maths', 'science', 'english')) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE content_schedule (
@@ -37,5 +37,5 @@ CREATE TABLE content_schedule (
   slot_id INT REFERENCES content_slots(id) ON DELETE CASCADE,
   rotation_order INT NOT NULL,
   duration INT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );

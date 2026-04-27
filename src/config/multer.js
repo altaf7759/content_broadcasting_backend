@@ -1,7 +1,7 @@
 import multer from "multer";
 import path from "path"
 import { FILE_TYPES, LIMITS } from "../constants/enums.js";
-import AppError from "../utils/appError.js";
+import AppError from "../utils/AppError.js";
 
 const storage = multer.diskStorage({
       destination: (req, file, cb) => {

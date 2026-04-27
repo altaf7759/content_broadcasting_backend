@@ -1,5 +1,5 @@
 import { verifyToken } from "../utils/jwt.js";
-import AppError from "../utils/appError.js";
+import AppError from "../utils/AppError.js";
 import { ROLES } from "../constants/enums.js";
 
 export const protect = async (req, res, next) => {

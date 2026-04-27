@@ -1,6 +1,6 @@
 import { Content } from "../models/content.model.js";
 import { Schedule } from "../models/schedule.model.js";
-import AppError from "../utils/appError.js";
+import AppError from "../utils/AppError.js";
 import { CONTENT_STATUS } from "../constants/enums.js";
 
 export async function finalizeSchedule(contentId, userId, payload) {

@@ -1,7 +1,7 @@
 import { Content } from "../models/content.model.js";
 import { Subject } from "../models/subject.model.js"
 import { CONTENT_STATUS, SUBJECTS } from "../constants/enums.js";
-import AppError from "../utils/appError.js";
+import AppError from "../utils/AppError.js";
 
 export async function uploadContent(userId, body, file) {
       const normalizedSubject = body.subject?.toLowerCase();

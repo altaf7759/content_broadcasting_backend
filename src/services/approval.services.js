@@ -1,6 +1,6 @@
 import { Content } from "../models/content.model.js";
 import { CONTENT_STATUS } from "../constants/enums.js";
-import AppError from "../utils/appError.js";
+import AppError from "../utils/AppError.js";
 
 export async function processApproval(contentId, principalId, decisionData) {
       const status = decisionData.status?.toLowerCase();

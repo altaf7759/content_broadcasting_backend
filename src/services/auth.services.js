@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import AppError from "../utils/appError.js";
+import AppError from "../utils/AppError.js";
 import { User } from "../models/user.model.js";
 import { ROLES } from "../constants/enums.js";
 import { signToken } from "../utils/jwt.js";

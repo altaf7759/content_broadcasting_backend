@@ -1,0 +1,109 @@
+System Architecture & Implementation Report: Content Broadcasting Platform
+Executive Summary
+
+This document outlines the backend architecture for a role-based content management and scheduling system. The system is built on Node.js/Express and PostgreSQL, utilizing a layered service architecture to handle content lifecycles—from teacher upload and principal approval to deterministic, subject-based rotation.
+
+
+Implementation Status:
+
+Authentication & RBAC: Complete
+
+Approval Workflow: Complete
+
+Scheduling Engine: Core Logic Implemented
+
+File Handling: Local Disk (S3 Migration Pending)
+
+
+1. Security & Identity Management
+The system implements a strict Role-Based Access Control (RBAC) model to ensure data integrity and process compliance.
+
+Authentication: JWT-based stateless authentication.
+
+Payload: Includes user_id, name, and role.
+
+Security: Password hashing via bcrypt; 24-hour token expiration.
+
+Middleware Layer (src/middlewares/auth.middleware.js):
+
+protect: Validates tokens from headers or cookies.
+
+authorize: Restricts route access based on role (Teacher vs. Principal).
+
+RBAC Logic:
+
+Teachers: Permission to create content and manage their own schedules.
+
+Principals: Exclusive permission to approve/reject content and view system-wide audits.
+
+
+2. Subject-Wise Domain Design
+To ensure independent scaling of content streams, the system is partitioned by Subject (Maths, Science, English).
+
+Data Integrity: Subjects are managed via Enums in the application layer and enforced via CHECK constraints in the database.
+
+Isolation: All scheduling and content retrieval queries are scoped to the specific subject, allowing for independent rotation cycles.
+
+
+3. Media & Upload Handling
+Currently, the system handles media through local disk storage, designed for easy migration to cloud providers.
+
+Processing (src/config/multer.js):
+
+Validates MIME types (JPG, PNG, GIF).
+
+Enforces a 10MB size limit.
+
+Database Metadata: The content table stores path, type, and size, decoupling the binary file from the business logic.
+
+Note: Production environments should migrate multer.diskStorage to multer-s3 for high availability.
+
+
+4. Approval Workflow Lifecycle
+Content follows a linear state machine to ensure only vetted material is broadcasted.
+
+Pending: Default state upon Teacher upload.
+
+Review: Principals access a dedicated queue of pending content.
+
+Terminal State: Content is marked as approved (added to rotation) or rejected (requires a mandatory reason for feedback).
+
+
+5. Core Scheduling LogicThe system uses a deterministic rotation algorithm. Instead of complex background jobs, it calculates the "Active Content" based on the elapsed time within a total cycle duration.
+
+Data Standards: All timestamp inputs (start_time, end_time) must follow the ISO 8601 format (e.g., YYYY-MM-DDTHH:mm:ss.sssZ). The backend enforces UTC normalization to ensure deterministic scheduling across different server timezones.
+
+Mathematical Model
+
+The active position in a rotation is determined by the modulo of the current time:
+
+cyclePosition = (currentTime - start_time / toCycleDuration) % totalDuration
+
+Database Implementation
+
+Partitioning: Uses SQL window functions (PARTITION BY subject) to maintain rotation orders independently.
+
+Filtering: The "Live" endpoint strictly filters for:
+  status = 'approved'
+  currentTime within the defined [start_time, end_time] window.
+
+
+6. Database Schema Design
+The relational schema is normalized to separate content metadata from scheduling constraints.
+
+users: Manages identity and roles.
+
+content: Acts as the "Source of Truth" for media metadata and approval status.
+
+content_schedule: A join table mapping content to specific slots with defined durations and rotation_order.
+
+
+7. Project Structure
+The project follows a Layered Architecture to separate concerns:
+
+Directory       Responsibility
+Controllers     Request parsing and HTTP response shaping.
+Services        Core business logic and complex DB transactions.
+Models          SQL queries and data access logic.
+Middlewares     Cross-cutting concerns (Auth, Role Validation).
+Utils           Helper functions (JWT, Date formatting)
